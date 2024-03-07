@@ -1,59 +1,62 @@
-use minijinja::{context, path_loader, Environment, Error};
-use std::ffi::OsString;
 use std::fs;
+use std::path::Path;
+use minijinja::{Environment, context};
+use anyhow::{Context, Result};
+use glob::{glob, Paths};
 
-pub fn do_compile() {
-    println!("compiling all the templates...");
-
-    let files = fs::read_dir("./demo/models").unwrap();
-    for fileResult in files {
-        let file = fileResult.unwrap();
-        //compile_sql_template(file.file_name())
-        //file.file_type().unwrap().
-    }
+pub fn compile_file(file: &Path) -> Result<String> {
+    let file_content = fs::read_to_string(file).with_context(|| format!("Failed to read {:?}", file.display()))?;
+    compile(&file_content)
 }
 
-fn compile_sql_template(file_name: OsString) {}
-
-fn builtin_ref(arg1: &str, arg2: Option<&str>, arg3: Option<&str>) -> Result<String, Error> {
-    let (model, schema, version) = if arg3.is_some() {
-        (arg2.unwrap(), arg1, arg3.unwrap())
-    } else if arg2.is_some() {
-        (arg2.unwrap(), arg1, "1")
-    } else {
-        (arg1, "default", "1")
-    };
-
-    let fqn = format!("{}.{}@{}", schema, model, version);
-    Ok(fqn)
-}
-
-fn mainx() {
+pub fn compile(template: &str) -> Result<String> {
     let mut env = Environment::new();
-    //env.add_function("ref", builtin_ref2);
-    env.add_function("ref", builtin_ref);
-    //env.set_loader(path_loader("demo/macros"));
+    env.render_str(template, context!{ }).with_context(|| "Failed to render template")
+}
 
-    // load macros...
+pub fn list_models() -> Result<Paths> {
+    glob("./demo/models/*.sql").with_context(||"failed to find models")
+}
 
-    /*
-    let files = fs::read_dir("./demo/macros").unwrap();
-    for fileResult in files {
-        let file = fileResult.unwrap();
-        env.add_template(file.file_name())
-    }*/
+#[cfg(test)]
+mod tests {
+    use std::fs;
+    use super::*;
 
-    env.set_loader(path_loader("demo/models"));
+    #[test]
+    fn test_compile_simple() {
+        let compiled = compile("Hello world").unwrap();
+        assert_eq!(compiled, "Hello world");
+    }
 
-    //env.te
+    #[test]
+    fn test_compile_foreach() {
+        let template = r#"
+{% set payment_methods = ["bank_transfer", "credit_card", "gift_card"] %}
+select
+    order_id,
+    {%- for payment_method in payment_methods %}
+    sum(case when payment_method = '{{payment_method}}' then amount end) as {{payment_method}}_amount,
+    {%- endfor %}
+    sum(amount) as total_amount
+from app_data.payments
+group by 1
+        "#;
 
-    // let tmpl = env.get_template("order_payment_method_amounts.sql").unwrap();
-    let tmpl = env.get_template("interactions.sql").unwrap();
-    //tmpl.instructions_and_blocks()
+        let compiled = compile(template).unwrap();
 
-    let ctx = context! {};
-    let rendered = tmpl.render(ctx).unwrap();
-    println!("rendered the template to {}", rendered);
+        let expected = r#"
 
-    println!("Bye.")
+select
+    order_id,
+    sum(case when payment_method = 'bank_transfer' then amount end) as bank_transfer_amount,
+    sum(case when payment_method = 'credit_card' then amount end) as credit_card_amount,
+    sum(case when payment_method = 'gift_card' then amount end) as gift_card_amount,
+    sum(amount) as total_amount
+from app_data.payments
+group by 1
+        "#;
+
+        assert_eq!(compiled, expected);
+    }
 }

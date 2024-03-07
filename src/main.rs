@@ -25,7 +25,7 @@ enum Command {
 
 fn main() {
     let args = BadAssArgs::parse();
-    match args.command {
-        Command::Compile => compile::do_compile(),
-    }
+    //match args.command {
+        //Command::Compile => compile::do_compile(),
+    //}
 }
