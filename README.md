@@ -11,7 +11,20 @@ Mainly a playground for me to become more familiar with [Rust](https://www.rust-
 badass materialize
 ```
 
-Use the (compiled) SQL templates to build database artifacts (tables, views, ...).
+Use the (compiled) SQL templates to build database artifacts (tables, views, ...)
+
+Currently we only render CTAS, eg:
+
+```sql
+SELECT * FROM foo
+```
+
+Becomes
+
+```sql
+CREATE TABLE xxx AS SELECT * FROM foo
+```
+
 
 #### Compile SQL templates
 
