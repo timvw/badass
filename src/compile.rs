@@ -1,13 +1,12 @@
 use crate::settings::Settings;
 use anyhow::{anyhow, Context, Result};
-use glob::{glob, Paths};
 use itertools::Itertools;
 use minijinja::{context, Environment};
 use std::fs;
 use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
-    let template_files = list_template_files(settings).with_context(|| {
+    let template_files = crate::core::list_template_files(settings).with_context(|| {
         format!(
             "Failed to list files in {}",
             &settings.models.location.display()
@@ -69,11 +68,6 @@ fn compile(template: &str) -> Result<String> {
     env.add_function("ref", mref);
     env.render_str(template, context! {})
         .with_context(|| "Failed to render template")
-}
-
-fn list_template_files(settings: &Settings) -> Result<Paths> {
-    glob(&format!("{}/*.sql", settings.models.location.display()))
-        .with_context(|| "failed to find models")
 }
 
 #[cfg(test)]

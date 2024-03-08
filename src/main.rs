@@ -1,4 +1,6 @@
 mod compile;
+mod core;
+mod materialize;
 mod settings;
 
 use crate::settings::Settings;
@@ -25,6 +27,8 @@ struct GlobalOpts {}
 enum Command {
     /// Render the sql templates
     Compile,
+    /// Materialize the templates
+    Materialize,
 }
 
 fn try_main() -> Result<()> {
@@ -33,6 +37,7 @@ fn try_main() -> Result<()> {
     let args = BadAssArgs::parse();
     match args.command {
         Command::Compile => compile::do_compile(&settings),
+        Command::Materialize => materialize::do_materialize(&settings),
     }
 }
 
