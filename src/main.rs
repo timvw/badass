@@ -4,6 +4,7 @@ mod infra;
 mod logging;
 mod materialize;
 mod settings;
+mod show;
 
 use anyhow::Result;
 use args::{BadassArgs, Command};
@@ -21,6 +22,7 @@ fn try_main() -> Result<()> {
     match args.command {
         Command::Compile => compile::do_compile(&settings),
         Command::Materialize => materialize::do_materialize(&settings),
+        Command::Show(_) => show::do_show(&settings, &args),
     }
 }
 

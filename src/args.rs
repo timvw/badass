@@ -22,7 +22,9 @@ impl BadassArgs {
 pub struct GlobalOpts {}
 
 #[derive(Debug, Args)]
-pub struct ShowOpts {}
+pub struct ShowArgs {
+    model: String,
+}
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
@@ -30,6 +32,6 @@ pub enum Command {
     Compile,
     /// Materialize the templates
     Materialize,
-    // /// Show
-    //Show(ShowOpts),
+    /// Show
+    Show(ShowArgs),
 }
