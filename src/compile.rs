@@ -55,8 +55,13 @@ fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<()> {
     Ok(())
 }
 
+fn mref(name: String) -> core::result::Result<String, minijinja::Error> {
+    Ok(name)
+}
+
 fn compile(template: &str) -> Result<String> {
-    let env = Environment::new();
+    let mut env = Environment::new();
+    env.add_function("ref", mref);
     env.render_str(template, context! {})
         .with_context(|| "Failed to render template")
 }
