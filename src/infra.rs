@@ -1,25 +1,26 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use glob::Paths;
 use itertools::Itertools;
+use std::fmt::Debug;
 use std::path::PathBuf;
 
-pub fn list_template_files(dir: &PathBuf) -> anyhow::Result<Paths> {
+pub fn list_template_files(dir: &PathBuf) -> Result<Paths> {
     let pattern = format!("{}/*.sql", dir.display());
     glob::glob(&pattern)
         .with_context(|| format!("failed to find template files matching {}", &pattern))
 }
 
-pub fn flatten_errors<T>(results: Vec<Result<T>>) -> Result<Vec<T>> {
+pub fn flatten_errors<T: Debug>(results: Vec<Result<T>>) -> Result<Vec<T>> {
     let mut oks: Vec<T> = Vec::new();
-    let mut errs: Vec<anyhow::Error> = Vec::new();
+    let mut errs: Vec<Error> = Vec::new();
 
     results.into_iter().for_each(|item| match item {
         Ok(v) => oks.push(v),
         Err(e) => errs.push(e),
     });
 
-    //println!("oks: {:?}", &oks);
-    //println!("errs: {:?}", &errs);
+    log::trace!("ok items: {oks:?}");
+    log::trace!("err items: {errs:?}");
 
     if errs.is_empty() {
         Ok(oks)
@@ -43,7 +44,7 @@ mod tests {
 
     #[test]
     fn test_flatten_errors() {
-        assert!(flatten_errors(vec![Ok(1), Err(anyhow::Error::msg("two")), Ok(3)]).is_err());
+        assert!(flatten_errors(vec![Ok(1), Err(Error::msg("two")), Ok(3)]).is_err());
     }
 
     #[test]
