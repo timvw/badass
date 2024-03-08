@@ -1,17 +1,17 @@
+use camino::Utf8PathBuf;
 use config::{Config, ConfigError, Environment};
 use serde::Deserialize;
-use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 #[allow(unused)]
 pub struct Models {
-    pub location: PathBuf,
+    pub location: Utf8PathBuf,
 }
 
 impl Default for Models {
     fn default() -> Self {
         Models {
-            location: PathBuf::from("./models"),
+            location: Utf8PathBuf::from("./models"),
         }
     }
 }
@@ -19,15 +19,15 @@ impl Default for Models {
 #[derive(Debug, Deserialize)]
 #[allow(unused)]
 pub struct Output {
-    pub compiled: PathBuf,
-    pub materialized: PathBuf,
+    pub compiled: Utf8PathBuf,
+    pub materialized: Utf8PathBuf,
 }
 
 impl Default for Output {
     fn default() -> Self {
         Output {
-            compiled: PathBuf::from("./target/compiled"),
-            materialized: PathBuf::from("./target/materialized"),
+            compiled: Utf8PathBuf::from("./target/compiled"),
+            materialized: Utf8PathBuf::from("./target/materialized"),
         }
     }
 }

@@ -2,9 +2,9 @@ use crate::infra;
 use crate::infra::flatten_errors;
 use crate::settings::Settings;
 use anyhow::{Context, Result};
+use camino::Utf8PathBuf;
 use minijinja::{context, Environment};
 use std::fs;
-use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
     let source_dir = &settings.models.location;
@@ -21,24 +21,20 @@ pub fn do_compile(settings: &Settings) -> Result<()> {
 }
 
 pub fn compile_files(
-    source_dir: &PathBuf,
-    target_dir: &PathBuf,
-) -> Result<Vec<(Result<PathBuf>, PathBuf)>> {
+    source_dir: &Utf8PathBuf,
+    target_dir: &Utf8PathBuf,
+) -> Result<Vec<(Result<Utf8PathBuf>, Utf8PathBuf)>> {
     let template_files = infra::list_template_files(source_dir)?;
-    fs::create_dir_all(&target_dir).with_context(|| {
-        format!(
-            "Failed to ensure directory {} exists",
-            &target_dir.display()
-        )
-    })?;
+    fs::create_dir_all(&target_dir)
+        .with_context(|| format!("Failed to ensure directory {} exists", &target_dir))?;
     let compilation_results = template_files
-        .flatten()
+        .into_iter()
         .map(|source| (compile_file(&source, &target_dir), source))
         .collect::<Vec<_>>();
     Ok(compilation_results)
 }
 
-fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
+fn compile_file(source: &Utf8PathBuf, target_dir: &Utf8PathBuf) -> Result<Utf8PathBuf> {
     log::debug!("Compiling {source:?} into {target_dir:?}");
     let target = target_dir.join(
         source

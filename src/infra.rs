@@ -1,13 +1,19 @@
 use anyhow::{anyhow, Context, Error, Result};
-use glob::Paths;
+use camino::Utf8PathBuf;
 use itertools::Itertools;
 use std::fmt::Debug;
-use std::path::PathBuf;
 
-pub fn list_template_files(dir: &PathBuf) -> Result<Paths> {
-    let pattern = format!("{}/*.sql", dir.display());
-    glob::glob(&pattern)
-        .with_context(|| format!("failed to find template files matching {}", &pattern))
+pub fn list_template_files(dir: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
+    let pattern = format!("{}/*.sql", dir);
+    let paths = glob::glob(&pattern)
+        .with_context(|| format!("failed to find template files matching {}", &pattern))?;
+    let utf8_paths = paths
+        .into_iter()
+        .flatten()
+        .map(Utf8PathBuf::from_path_buf)
+        .flatten()
+        .collect();
+    Ok(utf8_paths)
 }
 
 pub fn flatten_errors<T: Debug>(results: Vec<Result<T>>) -> Result<Vec<T>> {
@@ -38,8 +44,8 @@ mod tests {
 
     #[test]
     fn test_list_template_files() {
-        let files = list_template_files(&PathBuf::from("./demo/models")).unwrap();
-        assert_eq!(files.count(), 2);
+        let files = list_template_files(&Utf8PathBuf::from("./demo/models")).unwrap();
+        assert_eq!(files.len(), 2);
     }
 
     #[test]
