@@ -1,5 +1,5 @@
 mod compile;
-mod core;
+mod infra;
 mod materialize;
 mod settings;
 

@@ -1,12 +1,11 @@
 use crate::settings::Settings;
-use anyhow::{anyhow, Context, Result};
-use itertools::Itertools;
+use anyhow::{Context, Result};
 use minijinja::{context, Environment};
 use std::fs;
 use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
-    let template_files = crate::core::list_template_files(settings).with_context(|| {
+    let template_files = crate::infra::list_template_files(settings).with_context(|| {
         format!(
             "Failed to list files in {}",
             &settings.models.location.display()
@@ -22,26 +21,7 @@ pub fn do_compile(settings: &Settings) -> Result<()> {
         .flatten()
         .map(|source| compile_file(&source, &settings.output.location))
         .collect::<Vec<_>>();
-    flatten_errors(results).map(|_| ())
-}
-
-fn flatten_errors<T>(results: Vec<Result<T>>) -> Result<Vec<T>> {
-    let mut oks: Vec<T> = Vec::new();
-    let mut errs: Vec<anyhow::Error> = Vec::new();
-
-    results.into_iter().for_each(|item| match item {
-        Ok(v) => oks.push(v),
-        Err(e) => errs.push(e),
-    });
-
-    if errs.is_empty() {
-        Ok(oks)
-    } else {
-        Err(anyhow!(
-            "{}",
-            errs.iter().map(|e| format!("{:#}", e)).format("\n")
-        ))
-    }
+    crate::infra::flatten_errors(results).map(|_| ())
 }
 
 fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<()> {
