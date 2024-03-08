@@ -37,6 +37,7 @@ pub struct Settings {
 }
 
 impl Settings {
+    #[allow(dead_code)]
     pub fn from_path(path: &Path) -> Self {
         Settings {
             models: Models {
