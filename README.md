@@ -5,7 +5,15 @@ Mainly a playground for me to become more familiar with [Rust](https://www.rust-
 
 ### Features
 
-- Compile SQL templates by running the following command:
+#### Materialize SQL templates
+
+```bash
+badass materialize
+```
+
+Use the (compiled) SQL templates to build database artifacts (tables, views, ...).
+
+#### Compile SQL templates
 
 ```bash
 badass compile
