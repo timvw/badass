@@ -19,13 +19,15 @@ impl Default for Models {
 #[derive(Debug, Deserialize)]
 #[allow(unused)]
 pub struct Output {
-    pub location: PathBuf,
+    pub compiled: PathBuf,
+    pub materialized: PathBuf,
 }
 
 impl Default for Output {
     fn default() -> Self {
         Output {
-            location: PathBuf::from("./target/compiled"),
+            compiled: PathBuf::from("./target/compiled"),
+            materialized: PathBuf::from("./target/materialized"),
         }
     }
 }
@@ -42,7 +44,9 @@ impl Settings {
         let s = Config::builder()
             .set_default("models.location", "./models")
             .unwrap()
-            .set_default("output.location", "./target/compiled")
+            .set_default("output.compiled", "./target/compiled")
+            .unwrap()
+            .set_default("output.materialized", "./target/materialized")
             .unwrap()
             .add_source(Environment::with_prefix("BADASS").separator("_"))
             .build()?;

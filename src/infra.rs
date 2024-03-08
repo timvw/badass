@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{anyhow, Context, Result};
 use glob::Paths;
 use itertools::Itertools;
 use std::path::PathBuf;
@@ -9,9 +9,7 @@ pub fn list_template_files(dir: &PathBuf) -> anyhow::Result<Paths> {
         .with_context(|| format!("failed to find template files matching {}", &pattern))
 }
 
-pub fn flatten_errors<T: std::fmt::Debug>(
-    results: Vec<anyhow::Result<T>>,
-) -> anyhow::Result<Vec<T>> {
+pub fn flatten_errors<T>(results: Vec<Result<T>>) -> Result<Vec<T>> {
     let mut oks: Vec<T> = Vec::new();
     let mut errs: Vec<anyhow::Error> = Vec::new();
 

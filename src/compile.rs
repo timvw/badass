@@ -1,4 +1,5 @@
 use crate::infra;
+use crate::infra::flatten_errors;
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use minijinja::{context, Environment};
@@ -7,15 +8,22 @@ use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
     let source_dir = &settings.models.location;
-    let target_dir = &settings.output.location;
-    let _ = compile_files(&source_dir, &target_dir)?;
-    Ok(())
+    let target_dir = &settings.output.compiled;
+    let compilation_results = compile_files(&source_dir, &target_dir)?;
+    let results = compilation_results
+        .into_iter()
+        .map(|(target_result, _)| match target_result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        })
+        .collect::<Vec<Result<_>>>();
+    flatten_errors(results).map(|_| ())
 }
 
 pub fn compile_files(
     source_dir: &PathBuf,
     target_dir: &PathBuf,
-) -> Result<Vec<(PathBuf, PathBuf)>> {
+) -> Result<Vec<(Result<PathBuf>, PathBuf)>> {
     let template_files = infra::list_template_files(source_dir)?;
     fs::create_dir_all(&target_dir).with_context(|| {
         format!(
@@ -23,14 +31,11 @@ pub fn compile_files(
             &target_dir.display()
         )
     })?;
-    let results = template_files
+    let compilation_results = template_files
         .flatten()
-        .map(|source| match compile_file(&source, &target_dir) {
-            Ok(compiled_file) => Ok((source, compiled_file)),
-            Err(e) => Err(e),
-        })
+        .map(|source| (compile_file(&source, &target_dir), source))
         .collect::<Vec<_>>();
-    infra::flatten_errors(results)
+    Ok(compilation_results)
 }
 
 fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
