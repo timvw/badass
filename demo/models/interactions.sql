@@ -1,0 +1,1 @@
+SELECT * FROM {{ ref('order_payment_method_amounts') }}
