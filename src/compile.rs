@@ -39,6 +39,7 @@ pub fn compile_files(
 }
 
 fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
+    log::debug!("Compiling {source:?} into {target_dir:?}");
     let target = target_dir.join(
         source
             .file_name()
@@ -50,6 +51,7 @@ fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
         compile(&file_content).with_context(|| format!("Failed to compile {:?}", &source))?;
     fs::write(&target, compiled_content)
         .with_context(|| format!("Failed to write compiled template to {:?}", &target))?;
+    log::debug!("Compiled {source:?} into {target:?}");
     Ok(target)
 }
 
