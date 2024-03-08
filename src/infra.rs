@@ -20,8 +20,8 @@ pub fn flatten_errors<T: std::fmt::Debug>(
         Err(e) => errs.push(e),
     });
 
-    println!("oks: {:?}", &oks);
-    println!("errs: {:?}", &errs);
+    //println!("oks: {:?}", &oks);
+    //println!("errs: {:?}", &errs);
 
     if errs.is_empty() {
         Ok(oks)
