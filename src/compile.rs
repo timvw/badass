@@ -74,7 +74,6 @@ fn list_template_files(settings: &Settings) -> Result<Paths> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
 
     #[test]
     fn test_compile_simple() {
