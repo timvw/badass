@@ -17,7 +17,6 @@ pub fn compile_files(
     target_dir: &PathBuf,
 ) -> Result<Vec<(PathBuf, PathBuf)>> {
     let template_files = crate::infra::list_template_files(target_dir)?;
-    println!("we found the following files: {:?}", template_files);
     fs::create_dir_all(&source_dir).with_context(|| {
         format!(
             "Failed to ensure directory {} exists",

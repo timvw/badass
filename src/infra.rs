@@ -9,7 +9,7 @@ pub fn list_template_files(dir: &PathBuf) -> anyhow::Result<Paths> {
         .with_context(|| format!("failed to find template files matching {}", &pattern))
 }
 
-pub fn flatten_errors<T>(
+pub fn flatten_errors<T: std::fmt::Debug>(
     results: Vec<anyhow::Result<T>>,
 ) -> anyhow::Result<Vec<T>> {
     let mut oks: Vec<T> = Vec::new();
@@ -19,6 +19,9 @@ pub fn flatten_errors<T>(
         Ok(v) => oks.push(v),
         Err(e) => errs.push(e),
     });
+
+    println!("oks: {:?}", &oks);
+    println!("errs: {:?}", &errs);
 
     if errs.is_empty() {
         Ok(oks)
