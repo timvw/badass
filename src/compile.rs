@@ -13,7 +13,12 @@ pub fn do_compile(settings: &Settings) -> Result<()> {
             &settings.models.location.display()
         )
     })?;
-    fs::create_dir_all(&settings.output.location).with_context(|| format!("Failed to ensure directory {} exists", &settings.output.location.display()))?;
+    fs::create_dir_all(&settings.output.location).with_context(|| {
+        format!(
+            "Failed to ensure directory {} exists",
+            &settings.output.location.display()
+        )
+    })?;
     let results = template_files
         .flatten()
         .map(|source| compile_file(&source, &settings.output.location))
