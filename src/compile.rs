@@ -1,3 +1,4 @@
+use crate::infra::flatten_errors;
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use minijinja::{context, Environment};
@@ -5,26 +6,35 @@ use std::fs;
 use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
-    let template_files = crate::infra::list_template_files(settings).with_context(|| {
-        format!(
-            "Failed to list files in {}",
-            &settings.models.location.display()
-        )
-    })?;
-    fs::create_dir_all(&settings.output.location).with_context(|| {
+    let source_dir = &settings.models.location;
+    let target_dir = &settings.output.location;
+    let _ = compile_files(&source_dir, &target_dir)?;
+    Ok(())
+}
+
+pub fn compile_files(
+    source_dir: &PathBuf,
+    target_dir: &PathBuf,
+) -> Result<Vec<(PathBuf, PathBuf)>> {
+    let template_files = crate::infra::list_template_files(target_dir)?;
+    println!("we found the following files: {:?}", template_files);
+    fs::create_dir_all(&source_dir).with_context(|| {
         format!(
             "Failed to ensure directory {} exists",
-            &settings.output.location.display()
+            &source_dir.display()
         )
     })?;
     let results = template_files
         .flatten()
-        .map(|source| compile_file(&source, &settings.output.location))
+        .map(|source| match compile_file(&source, &target_dir) {
+            Ok(compiled_file) => Ok((source, compiled_file)),
+            Err(e) => Err(e),
+        })
         .collect::<Vec<_>>();
-    crate::infra::flatten_errors(results).map(|_| ())
+    flatten_errors(results)
 }
 
-fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<()> {
+fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
     let target = target_dir.join(
         source
             .file_name()
@@ -36,7 +46,7 @@ fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<()> {
         compile(&file_content).with_context(|| format!("Failed to compile {:?}", &source))?;
     fs::write(&target, compiled_content)
         .with_context(|| format!("Failed to write compiled template to {:?}", &target))?;
-    Ok(())
+    Ok(target)
 }
 
 fn mref(name: String) -> core::result::Result<String, minijinja::Error> {
@@ -45,7 +55,7 @@ fn mref(name: String) -> core::result::Result<String, minijinja::Error> {
 
 fn compile(template: &str) -> Result<String> {
     let mut env = Environment::new();
-    env.add_function("ref", mref);
+    //env.add_function("ref", mref);
     env.render_str(template, context! {})
         .with_context(|| "Failed to render template")
 }

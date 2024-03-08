@@ -35,15 +35,3 @@ pub struct Settings {
     pub models: Models,
     pub output: Output,
 }
-
-impl Settings {
-    #[allow(dead_code)]
-    pub fn from_path(path: &Path) -> Self {
-        Settings {
-            models: Models {
-                location: PathBuf::from(&path).join("models"),
-            },
-            ..Default::default()
-        }
-    }
-}
