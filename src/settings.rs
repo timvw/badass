@@ -1,5 +1,6 @@
+use config::{Config, ConfigError, Environment};
 use serde::Deserialize;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 #[allow(unused)]
@@ -10,7 +11,7 @@ pub struct Models {
 impl Default for Models {
     fn default() -> Self {
         Models {
-            location: PathBuf::from("./demo/models"),
+            location: PathBuf::from("./models"),
         }
     }
 }
@@ -34,4 +35,19 @@ impl Default for Output {
 pub struct Settings {
     pub models: Models,
     pub output: Output,
+}
+
+impl Settings {
+    pub fn new() -> Result<Self, ConfigError> {
+        let s = Config::builder()
+            .set_default("models.location", "./models")
+            .unwrap()
+            .set_default("output.location", "./target/compiled")
+            .unwrap()
+            .add_source(Environment::with_prefix("BADASS").separator("_"))
+            .build()?;
+
+        // You can deserialize (and thus freeze) the entire configuration as
+        s.try_deserialize()
+    }
 }

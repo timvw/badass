@@ -1,4 +1,4 @@
-use crate::infra::flatten_errors;
+use crate::infra;
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use minijinja::{context, Environment};
@@ -16,11 +16,11 @@ pub fn compile_files(
     source_dir: &PathBuf,
     target_dir: &PathBuf,
 ) -> Result<Vec<(PathBuf, PathBuf)>> {
-    let template_files = crate::infra::list_template_files(target_dir)?;
-    fs::create_dir_all(&source_dir).with_context(|| {
+    let template_files = infra::list_template_files(source_dir)?;
+    fs::create_dir_all(&target_dir).with_context(|| {
         format!(
             "Failed to ensure directory {} exists",
-            &source_dir.display()
+            &target_dir.display()
         )
     })?;
     let results = template_files
@@ -30,7 +30,7 @@ pub fn compile_files(
             Err(e) => Err(e),
         })
         .collect::<Vec<_>>();
-    flatten_errors(results)
+    infra::flatten_errors(results)
 }
 
 fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
@@ -54,7 +54,7 @@ fn mref(name: String) -> core::result::Result<String, minijinja::Error> {
 
 fn compile(template: &str) -> Result<String> {
     let mut env = Environment::new();
-    //env.add_function("ref", mref);
+    env.add_function("ref", mref);
     env.render_str(template, context! {})
         .with_context(|| "Failed to render template")
 }

@@ -9,7 +9,8 @@ use args::{BadassArgs, Command};
 use settings::Settings;
 
 fn try_main() -> Result<()> {
-    let settings = Settings::default();
+    let settings = Settings::new()?;
+    //println!("the settings are: {:?}", &settings);
     let args = BadassArgs::parse();
     match args.command {
         Command::Compile => compile::do_compile(&settings),
