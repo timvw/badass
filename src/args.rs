@@ -23,7 +23,7 @@ pub struct GlobalOpts {}
 
 #[derive(Debug, Args)]
 pub struct ShowArgs {
-    model: String,
+    pub model: String,
 }
 
 #[derive(Debug, Subcommand)]

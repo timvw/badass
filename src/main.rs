@@ -22,7 +22,7 @@ fn try_main() -> Result<()> {
     match args.command {
         Command::Compile => compile::do_compile(&settings),
         Command::Materialize => materialize::do_materialize(&settings),
-        Command::Show(_) => show::do_show(&settings, &args),
+        Command::Show(show_args) => show::do_show(&settings, &show_args),
     }
 }
 
