@@ -34,4 +34,6 @@ pub enum Command {
     Materialize,
     /// Show
     Show(ShowArgs),
+    /// Settings
+    Settings,
 }

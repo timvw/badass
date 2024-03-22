@@ -46,7 +46,7 @@ impl Default for QueryEngine {
     }
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize)]
 #[allow(unused)]
 pub struct Settings {
     pub models: Models,
@@ -61,6 +61,7 @@ impl Settings {
         let default_query_engine = QueryEngine::default();
 
         let s = Config::builder()
+            // Add default values
             .set_default("models.location", default_models.location.as_str())
             .unwrap()
             .set_default("output.compiled", default_ouptut.compiled.as_str())
@@ -69,12 +70,25 @@ impl Settings {
             .unwrap()
             .set_default("query_engine.params", default_query_engine.params)
             .unwrap()
+            // Load config file
+            .add_source(config::File::with_name("badass").required(false))
+            // Add environment variables (with prefix BADASS_)
             .add_source(Environment::with_prefix("BADASS").separator("_"))
             .build()?;
 
         // You can deserialize (and thus freeze) the entire configuration as
         s.try_deserialize()
     }
+}
+
+pub fn do_show() -> anyhow::Result<()> {
+    match Settings::new() {
+        Ok(settings) => {
+            println!("The settings are: \n\n{settings:#?}")
+        }
+        Err(e) => println!("Failed to parse settings because {e}"),
+    }
+    Ok(())
 }
 
 #[cfg(test)]

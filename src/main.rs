@@ -23,6 +23,7 @@ fn try_main() -> Result<()> {
         Command::Compile => compile::do_compile(&settings),
         Command::Materialize => materialize::do_materialize(&settings),
         Command::Show(show_args) => show::do_show(&settings, &show_args),
+        Command::Settings => settings::do_show(),
     }
 }
 
