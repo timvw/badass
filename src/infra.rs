@@ -3,6 +3,22 @@ use camino::Utf8PathBuf;
 use itertools::Itertools;
 use std::fmt::Debug;
 
+pub struct Model {
+    pub file: Utf8PathBuf,
+}
+
+impl  Model {
+    pub fn name(&self) -> &str {
+        self.file.file_stem().unwrap()
+    }
+}
+
+pub fn list_models(dir: &Utf8PathBuf) -> Result<Vec<Model>> {
+    let template_files = list_template_files(dir)?;
+    let models = template_files.into_iter().map(|f| Model { file: f}).collect();
+    Ok(models)
+}
+
 pub fn list_template_files(dir: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
     let pattern = format!("{}/*.sql", dir);
     let paths = glob::glob(&pattern)
@@ -56,5 +72,12 @@ mod tests {
     #[test]
     fn test_flatten_errors_all_good() {
         assert!(flatten_errors(vec![Ok(1), Ok(2)]).is_ok_and(|items| items.len() == 2));
+    }
+
+    #[test]
+    fn test_list_models() {
+        let models = list_models(&Utf8PathBuf::from("./demo/models")).unwrap();
+        assert_eq!(models.len(), 2);
+        assert!(models.iter().any(|m| m.name() == "interactions"));
     }
 }
