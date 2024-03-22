@@ -17,14 +17,14 @@ pub fn do_show(settings: &Settings, show_args: &ShowArgs) -> anyhow::Result<()> 
     let compiled_model_file = compile_model(&model, settings)?;
     let compiled_model_sql = fs::read_to_string(compiled_model_file)?;
 
-    let mut client = Client::connect("host=localhost user=tim", NoTls)?;
+    let mut client = Client::connect(&settings.query_engine.params, NoTls)?;
 
     for row in client.query(&compiled_model_sql, &[])? {
         for column in row.columns() {
             println!("column: {}", column.name());
         }
-        let number: i32 = row.get(0);
-        println!("found row: {}", number,);
+        //let number: i32 = row.get(0);
+        //println!("found row: {}", number,);
     }
 
     Ok(())

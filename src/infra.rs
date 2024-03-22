@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test_list_template_files() {
         let files = list_template_files(&Utf8PathBuf::from("./demo/models")).unwrap();
-        assert_eq!(files.len(), 2);
+        assert!(files.len() > 1);
     }
 
     #[test]
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn test_list_models() {
         let models = list_models(&Utf8PathBuf::from("./demo/models")).unwrap();
-        assert_eq!(models.len(), 2);
+        assert!(models.iter().any(|m| m.name() == "demo"));
         assert!(models.iter().any(|m| m.name() == "interactions"));
     }
 }

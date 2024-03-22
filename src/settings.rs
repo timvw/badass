@@ -32,11 +32,26 @@ impl Default for Output {
     }
 }
 
+#[derive(Debug, Deserialize)]
+#[allow(unused)]
+pub struct QueryEngine {
+    pub params: String,
+}
+
+impl Default for QueryEngine {
+    fn default() -> Self {
+        QueryEngine {
+            params: String::from("host=localhost user=tim"),
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Default)]
 #[allow(unused)]
 pub struct Settings {
     pub models: Models,
     pub output: Output,
+    pub query_engine: QueryEngine,
 }
 
 impl Settings {
