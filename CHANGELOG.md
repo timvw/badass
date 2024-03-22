@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/timvw/badass/compare/v0.1.0...v0.1.1) - 2024-03-22
+
+### Fixed
+- *(deps)* update all non-major dependencies
+- *(deps)* update rust crate clap to 4.5.3
+- *(deps)* update rust crate minijinja to 1.0.15 ([#8](https://github.com/timvw/badass/pull/8))
+
+### Other
+- move renovate config to .github and add some rules to group upgrades
+- Feature/show ([#11](https://github.com/timvw/badass/pull/11))
+
 ## [0.1.0](https://github.com/timvw/badass/releases/tag/v0.1.0) - 2024-03-22
 
 ### Added
