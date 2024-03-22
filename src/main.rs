@@ -6,14 +6,14 @@ mod materialize;
 mod settings;
 mod show;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use args::{BadassArgs, Command};
 use settings::Settings;
 
 fn try_main() -> Result<()> {
     logging::configure_logging()?;
 
-    let settings = Settings::new()?;
+    let settings = Settings::new().with_context(|| "Failed to build settings")?;
     log::debug!("the settings are: {settings:?}");
 
     let args = BadassArgs::parse();

@@ -41,11 +41,16 @@ group by 1
 ### View (compiled) SQL template query results
 
 ```bash
-badass show
+badass show demo
 ```
 
-```bash
-
+```text
+.------------------------.
+| Tim   | Van Wassenhove |
+| Tiebe | Van Wassenhove |
+| Amber | Van Wassenhove |
+| Evy   | Penninckx      |
+'------------------------'
 ```
 
 #### Materialize SQL templates

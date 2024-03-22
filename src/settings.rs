@@ -56,12 +56,18 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
+        let default_models = Models::default();
+        let default_ouptut = Output::default();
+        let default_query_engine = QueryEngine::default();
+
         let s = Config::builder()
-            .set_default("models.location", "./models")
+            .set_default("models.location", default_models.location.as_str())
             .unwrap()
-            .set_default("output.compiled", "./target/compiled")
+            .set_default("output.compiled", default_ouptut.compiled.as_str())
             .unwrap()
-            .set_default("output.materialized", "./target/materialized")
+            .set_default("output.materialized", default_ouptut.materialized.as_str())
+            .unwrap()
+            .set_default("query_engine.params", default_query_engine.params)
             .unwrap()
             .add_source(Environment::with_prefix("BADASS").separator("_"))
             .build()?;
