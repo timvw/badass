@@ -1,6 +1,6 @@
 [package]
 name = "badass"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "badass is a cli tool inspired by dbt and airflow"
 homepage = "https://github.com/timvw/badass"
