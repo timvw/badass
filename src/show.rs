@@ -14,8 +14,8 @@ pub fn do_show(settings: &Settings, show_args: &ShowArgs) -> anyhow::Result<()> 
         .into_iter()
         .find(|model| model.name() == show_args.model)
         .with_context(|| format!("Could not find model {}.", show_args.model))?;
-    let compiled_model_file = compile_model(&model, &settings)?;
-    let compiled_model_sql = fs::read_to_string(&compiled_model_file)?;
+    let compiled_model_file = compile_model(&model, settings)?;
+    let compiled_model_sql = fs::read_to_string(compiled_model_file)?;
 
     let mut client = Client::connect("host=localhost user=tim", NoTls)?;
 

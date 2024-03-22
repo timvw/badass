@@ -8,7 +8,7 @@ use std::fs;
 pub fn do_materialize(settings: &Settings) -> Result<()> {
     let source_dir = &settings.models.location;
     let target_dir = &settings.output.compiled;
-    let compilation_results = compile_files(&source_dir, &target_dir)?;
+    let compilation_results = compile_files(source_dir, target_dir)?;
 
     // only consider the files we've been able to compile... (perhaps we should bail out?)
     let compiled_files = compilation_results
@@ -21,8 +21,8 @@ pub fn do_materialize(settings: &Settings) -> Result<()> {
 
     let materialized_dir = &settings.output.materialized;
 
-    fs::create_dir_all(&materialized_dir)
-        .with_context(|| format!("Failed to ensure directory {} exists", &materialized_dir))?;
+    fs::create_dir_all(materialized_dir)
+        .with_context(|| format!("Failed to ensure directory {} exists", materialized_dir))?;
 
     let materialized_files = compiled_files
         .into_iter()
@@ -31,7 +31,7 @@ pub fn do_materialize(settings: &Settings) -> Result<()> {
             let file_name = &compiled.file_name().unwrap();
             let materialized_file = materialized_dir.join(file_name);
             let table_name = &compiled.file_stem().unwrap();
-            materialize_table(&table_name, compiled.clone(), materialized_file)
+            materialize_table(table_name, compiled.clone(), materialized_file)
         })
         .collect::<Vec<_>>();
     flatten_errors(materialized_files).map(|_| ())

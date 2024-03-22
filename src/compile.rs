@@ -9,7 +9,7 @@ use std::fs;
 pub fn do_compile(settings: &Settings) -> Result<()> {
     let source_dir = &settings.models.location;
     let target_dir = &settings.output.compiled;
-    let compilation_results = compile_files(&source_dir, &target_dir)?;
+    let compilation_results = compile_files(source_dir, target_dir)?;
     let results = compilation_results
         .into_iter()
         .map(|(target_result, _)| match target_result {
@@ -25,11 +25,11 @@ pub fn compile_files(
     target_dir: &Utf8PathBuf,
 ) -> Result<Vec<(Result<Utf8PathBuf>, Utf8PathBuf)>> {
     let template_files = infra::list_template_files(source_dir)?;
-    fs::create_dir_all(&target_dir)
+    fs::create_dir_all(target_dir)
         .with_context(|| format!("Failed to ensure directory {} exists", &target_dir))?;
     let compilation_results = template_files
         .into_iter()
-        .map(|source| (compile_file(&source, &target_dir), source))
+        .map(|source| (compile_file(&source, target_dir), source))
         .collect::<Vec<_>>();
     Ok(compilation_results)
 }
@@ -42,7 +42,7 @@ fn compile_file(source: &Utf8PathBuf, target_dir: &Utf8PathBuf) -> Result<Utf8Pa
             .with_context(|| format!("Failed to build build target path for {:?}", &source))?,
     );
     let file_content =
-        fs::read_to_string(&source).with_context(|| format!("Failed to read {:?}", &source))?;
+        fs::read_to_string(source).with_context(|| format!("Failed to read {:?}", &source))?;
     let compiled_content =
         compile(&file_content).with_context(|| format!("Failed to compile {:?}", &source))?;
     fs::write(&target, compiled_content)

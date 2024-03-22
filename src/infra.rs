@@ -29,8 +29,7 @@ pub fn list_template_files(dir: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
     let utf8_paths = paths
         .into_iter()
         .flatten()
-        .map(Utf8PathBuf::from_path_buf)
-        .flatten()
+        .flat_map(Utf8PathBuf::from_path_buf)
         .collect();
     Ok(utf8_paths)
 }
