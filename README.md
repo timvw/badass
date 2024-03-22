@@ -3,6 +3,33 @@
 Badass is a CLI tool inspired by [DBT](https://github.com/dbt-labs/dbt-core) and [Airflow](https://airflow.apache.org/). 
 Mainly a playground for me to become more familiar with [Rust](https://www.rust-lang.org/).
 
+### Configuration
+
+Badass uses [config-rs](https://github.com/mehcode/config-rs) to search for a badass config (.toml, .json, .yaml or .ini) in the current workin directory.
+It is also possible to override settings with an environment variable (prefixed with BADASS_)
+
+```bash
+BADASS_output_compiled=/tmp/compiled badass settings
+```
+
+```textmate
+The settings are: 
+
+Settings {
+    models: Models {
+        location: "./demo/models",
+    },
+    output: Output {
+        compiled: "/tmp/compiled",
+        materialized: "./target/materialized",
+    },
+    query_engine: QueryEngine {
+        params: "host=localhost user=tim",
+    },
+}
+
+```
+
 ### Features
 
 #### Compile SQL templates
