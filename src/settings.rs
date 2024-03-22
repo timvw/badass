@@ -76,3 +76,14 @@ impl Settings {
         s.try_deserialize()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_settings() {
+        let settings_result = Settings::new();
+        assert!(settings_result.is_ok());
+    }
+}
