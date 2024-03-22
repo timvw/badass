@@ -1,15 +1,15 @@
 use crate::infra;
-use crate::infra::flatten_errors;
+use crate::infra::{flatten_errors, Model};
 use crate::settings::Settings;
 use anyhow::{Context, Result};
+use camino::Utf8PathBuf;
 use minijinja::{context, Environment};
 use std::fs;
-use std::path::PathBuf;
 
 pub fn do_compile(settings: &Settings) -> Result<()> {
     let source_dir = &settings.models.location;
     let target_dir = &settings.output.compiled;
-    let compilation_results = compile_files(&source_dir, &target_dir)?;
+    let compilation_results = compile_files(source_dir, target_dir)?;
     let results = compilation_results
         .into_iter()
         .map(|(target_result, _)| match target_result {
@@ -21,24 +21,20 @@ pub fn do_compile(settings: &Settings) -> Result<()> {
 }
 
 pub fn compile_files(
-    source_dir: &PathBuf,
-    target_dir: &PathBuf,
-) -> Result<Vec<(Result<PathBuf>, PathBuf)>> {
+    source_dir: &Utf8PathBuf,
+    target_dir: &Utf8PathBuf,
+) -> Result<Vec<(Result<Utf8PathBuf>, Utf8PathBuf)>> {
     let template_files = infra::list_template_files(source_dir)?;
-    fs::create_dir_all(&target_dir).with_context(|| {
-        format!(
-            "Failed to ensure directory {} exists",
-            &target_dir.display()
-        )
-    })?;
+    fs::create_dir_all(target_dir)
+        .with_context(|| format!("Failed to ensure directory {} exists", &target_dir))?;
     let compilation_results = template_files
-        .flatten()
-        .map(|source| (compile_file(&source, &target_dir), source))
+        .into_iter()
+        .map(|source| (compile_file(&source, target_dir), source))
         .collect::<Vec<_>>();
     Ok(compilation_results)
 }
 
-fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
+fn compile_file(source: &Utf8PathBuf, target_dir: &Utf8PathBuf) -> Result<Utf8PathBuf> {
     log::debug!("Compiling {source:?} into {target_dir:?}");
     let target = target_dir.join(
         source
@@ -46,13 +42,20 @@ fn compile_file(source: &PathBuf, target_dir: &PathBuf) -> Result<PathBuf> {
             .with_context(|| format!("Failed to build build target path for {:?}", &source))?,
     );
     let file_content =
-        fs::read_to_string(&source).with_context(|| format!("Failed to read {:?}", &source))?;
+        fs::read_to_string(source).with_context(|| format!("Failed to read {:?}", &source))?;
     let compiled_content =
         compile(&file_content).with_context(|| format!("Failed to compile {:?}", &source))?;
     fs::write(&target, compiled_content)
         .with_context(|| format!("Failed to write compiled template to {:?}", &target))?;
     log::debug!("Compiled {source:?} into {target:?}");
     Ok(target)
+}
+
+pub fn compile_model(model: &Model, settings: &Settings) -> Result<Utf8PathBuf> {
+    let source = &model.file;
+    let target_dir = &settings.output.compiled;
+    let result = compile_file(source, target_dir)?;
+    Ok(result)
 }
 
 fn mref(name: String) -> core::result::Result<String, minijinja::Error> {

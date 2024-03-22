@@ -5,27 +5,6 @@ Mainly a playground for me to become more familiar with [Rust](https://www.rust-
 
 ### Features
 
-#### Materialize SQL templates
-
-```bash
-badass materialize
-```
-
-Use the (compiled) SQL templates to build database artifacts (tables, views, ...)
-
-Currently we only render CTAS, eg:
-
-```sql
-SELECT * FROM foo
-```
-
-Becomes
-
-```sql
-CREATE TABLE xxx AS SELECT * FROM foo
-```
-
-
 #### Compile SQL templates
 
 ```bash
@@ -57,5 +36,40 @@ select
     sum(amount) as total_amount
 from app_data.payments
 group by 1
+```
+
+### View (compiled) SQL template query results
+
+```bash
+badass show demo
+```
+
+```text
+.------------------------.
+| Tim   | Van Wassenhove |
+| Tiebe | Van Wassenhove |
+| Amber | Van Wassenhove |
+| Evy   | Penninckx      |
+'------------------------'
+```
+
+#### Materialize SQL templates
+
+```bash
+badass materialize
+```
+
+Use the (compiled) SQL templates to build database artifacts (tables, views, ...)
+
+Currently we only render CTAS, eg:
+
+```sql
+SELECT * FROM foo
+```
+
+Becomes
+
+```sql
+CREATE TABLE xxx AS SELECT * FROM foo
 ```
 
