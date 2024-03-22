@@ -7,7 +7,7 @@ pub struct Model {
     pub file: Utf8PathBuf,
 }
 
-impl  Model {
+impl Model {
     pub fn name(&self) -> &str {
         self.file.file_stem().unwrap()
     }
@@ -15,7 +15,10 @@ impl  Model {
 
 pub fn list_models(dir: &Utf8PathBuf) -> Result<Vec<Model>> {
     let template_files = list_template_files(dir)?;
-    let models = template_files.into_iter().map(|f| Model { file: f}).collect();
+    let models = template_files
+        .into_iter()
+        .map(|f| Model { file: f })
+        .collect();
     Ok(models)
 }
 

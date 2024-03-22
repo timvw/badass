@@ -1,5 +1,5 @@
 use crate::infra;
-use crate::infra::flatten_errors;
+use crate::infra::{flatten_errors, Model};
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
@@ -49,6 +49,13 @@ fn compile_file(source: &Utf8PathBuf, target_dir: &Utf8PathBuf) -> Result<Utf8Pa
         .with_context(|| format!("Failed to write compiled template to {:?}", &target))?;
     log::debug!("Compiled {source:?} into {target:?}");
     Ok(target)
+}
+
+pub fn compile_model(model: &Model, settings: &Settings) -> Result<Utf8PathBuf> {
+    let source = &model.file;
+    let target_dir = &settings.output.compiled;
+    let result = compile_file(source, target_dir)?;
+    Ok(result)
 }
 
 fn mref(name: String) -> core::result::Result<String, minijinja::Error> {
