@@ -3,10 +3,10 @@ use crate::compile::compile_model;
 use crate::infra::list_models;
 use crate::settings::Settings;
 use anyhow::Context;
+use chrono::{DateTime, Utc};
 use postgres::{Client, Column, NoTls, Row};
 use std::fs;
 use std::time::SystemTime;
-use chrono::{DateTime, Utc};
 use tabled::builder::Builder;
 use tabled::settings::Style;
 
@@ -57,7 +57,7 @@ fn get_display_value(row: &Row, column: &Column) -> String {
         "smallint" | "smallserial" => row
             .try_get::<&str, i16>(column.name())
             .map_or(String::from(""), |x| x.to_string()),
-        "int" | "serial" => row
+        "int" | "serial" | "int4" => row
             .try_get::<&str, i32>(column.name())
             .map_or(String::from(""), |x| x.to_string()),
         "oid" => row
@@ -72,12 +72,15 @@ fn get_display_value(row: &Row, column: &Column) -> String {
         "double precision" => row
             .try_get::<&str, f64>(column.name())
             .map_or(String::from(""), |x| x.to_string()),
-        "timestamp" | "timestamp with time zone" => row
-            .try_get::<&str, SystemTime>(column.name())
-           .map_or(String::from(""), |x| {
-               let datetime: DateTime<Utc> = x.into();
-               datetime.to_rfc3339()
-           }),
-        _ => format!("(N/A for type {})", column.type_().name()),
+        "timestamp" | "timestamptz" => {
+            row.try_get::<&str, SystemTime>(column.name())
+                .map_or(String::from(""), |x| {
+                    let datetime: DateTime<Utc> = x.into();
+                    datetime.to_rfc3339()
+                })
+        }
+        _ => row
+            .try_get::<&str, String>(column.name())
+            .unwrap_or(format!("Unsupported {}", column.type_().name())),
     }
 }
