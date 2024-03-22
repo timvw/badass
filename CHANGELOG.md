@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/timvw/badass/compare/v0.1.1...v0.1.2) - 2024-03-22
+
+### Added
+- add command to display settings and documented how they can be overridden
+
+### Other
+- add test to verify that we can create a new (default) settings instance
+
 ## [0.1.1](https://github.com/timvw/badass/compare/v0.1.0...v0.1.1) - 2024-03-22
 
 ### Fixed
