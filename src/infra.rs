@@ -2,7 +2,10 @@ use anyhow::{anyhow, Context, Error, Result};
 use camino::Utf8PathBuf;
 use itertools::Itertools;
 use std::fmt::Debug;
+use serde::Deserialize;
 
+#[derive(Debug, Deserialize, Default)]
+#[allow(unused)]
 pub struct Model {
     pub file: Utf8PathBuf,
 }
