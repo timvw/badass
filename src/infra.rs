@@ -7,12 +7,28 @@ use std::fmt::Debug;
 #[derive(Debug, Deserialize, Default)]
 #[allow(unused)]
 pub struct Model {
+    pub name: String,
     pub file: Utf8PathBuf,
 }
 
 impl Model {
-    pub fn name(&self) -> &str {
-        self.file.file_stem().unwrap()
+
+    pub fn new(base: &Utf8PathBuf, file: &Utf8PathBuf) -> Self {
+        Model {
+            name: get_model_name(base, file),
+            file: Utf8PathBuf::from(file),
+        }
+    }
+}
+
+pub fn get_model_name(base: &Utf8PathBuf, file: &Utf8PathBuf) -> String {
+    let file_without_base = file.strip_prefix(base).unwrap();
+    let parent = file_without_base.parent().unwrap().components().join(".");
+    let file_stem = file_without_base.file_stem().unwrap();
+    if parent.len() == 0 {
+        String::from(file_stem)
+    } else {
+        format!("{parent}.{file_stem}")
     }
 }
 
@@ -20,13 +36,13 @@ pub fn list_models(dir: &Utf8PathBuf) -> Result<Vec<Model>> {
     let template_files = list_template_files(dir)?;
     let models = template_files
         .into_iter()
-        .map(|f| Model { file: f })
+        .map(|f| Model::new(&dir, &f))
         .collect();
     Ok(models)
 }
 
 pub fn list_template_files(dir: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
-    let pattern = format!("{}/*.sql", dir);
+    let pattern = format!("{}/**/*.sql", dir);
     let paths = glob::glob(&pattern)
         .with_context(|| format!("failed to find template files matching {}", &pattern))?;
     let utf8_paths = paths
@@ -82,7 +98,21 @@ mod tests {
     #[test]
     fn test_list_models() {
         let models = list_models(&Utf8PathBuf::from("./demo/models")).unwrap();
-        assert!(models.iter().any(|m| m.name() == "demo"));
-        assert!(models.iter().any(|m| m.name() == "interactions"));
+        assert!(models.iter().any(|m| m.name == "demo"));
+        assert!(models.iter().any(|m| m.name == "interactions"));
+    }
+
+    #[test]
+    fn test_get_model_name_root_path() {
+        let base = Utf8PathBuf::from("./models");
+        let file = Utf8PathBuf::from("./models/demo.sql");
+        assert_eq!(get_model_name(&base, &file), String::from("demo"));
+    }
+
+    #[test]
+    fn test_get_model_name_sub_path() {
+        let base = Utf8PathBuf::from("./models");
+        let file = Utf8PathBuf::from("./models/presentation/demo.sql");
+        assert_eq!(get_model_name(&base, &file), String::from("presentation.demo"));
     }
 }
