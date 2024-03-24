@@ -88,13 +88,13 @@ badass materialize
 
 Use the (compiled) SQL templates to build database artifacts (tables, views, ...)
 
-Currently we only render CTAS, eg:
+Currently, we only render CTAS, eg:
 
 ```sql
 SELECT * FROM foo
 ```
 
-Becomes
+We will create a table as following:
 
 ```sql
 CREATE TABLE xxx AS SELECT * FROM foo
