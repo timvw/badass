@@ -21,14 +21,14 @@ impl Model {
 }
 
 pub fn get_model_name(base: &Utf8PathBuf, file: &Utf8PathBuf) -> String {
-    let file_without_base = if (file.parent().unwrap() == base) {
+    let file_without_base = if file.parent().unwrap() == base {
         file
     } else {
         file.strip_prefix(base).unwrap()
     };
     let parent = file_without_base.parent().unwrap().components().join(".");
     let file_stem = file_without_base.file_stem().unwrap();
-    if parent.len() == 0 {
+    if parent.is_empty() {
         String::from(file_stem)
     } else {
         format!("{parent}.{file_stem}")
@@ -39,7 +39,7 @@ pub fn list_models(dir: &Utf8PathBuf) -> Result<Vec<Model>> {
     let template_files = list_template_files(dir)?;
     let models = template_files
         .into_iter()
-        .map(|f| Model::new(&dir, &f))
+        .map(|f| Model::new(dir, &f))
         .collect();
     Ok(models)
 }
