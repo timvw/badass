@@ -1,4 +1,4 @@
-use crate::compile::compile_files;
+use crate::commands::compile::compile_files;
 use crate::infra::flatten_errors;
 use crate::settings::Settings;
 use anyhow::{Context, Result};
