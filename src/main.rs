@@ -1,10 +1,8 @@
 mod args;
-mod compile;
+mod commands;
 mod infra;
 mod logging;
-mod materialize;
 mod settings;
-mod show;
 
 use anyhow::{Context, Result};
 use args::{BadassArgs, Command};
@@ -20,10 +18,10 @@ fn try_main() -> Result<()> {
     log::debug!("the args are: {args:?}");
 
     match args.command {
-        Command::Compile => compile::do_compile(&settings),
-        Command::Materialize => materialize::do_materialize(&settings),
-        Command::Show(show_args) => show::do_show(&settings, &show_args),
-        Command::Settings => settings::do_show(),
+        Command::Compile => commands::compile::do_compile(&settings),
+        Command::Materialize => commands::materialize::do_materialize(&settings),
+        Command::Show(show_args) => commands::show::do_show(&settings, &show_args),
+        Command::Settings => commands::settings::do_show(),
     }
 }
 
