@@ -12,7 +12,6 @@ pub struct Model {
 }
 
 impl Model {
-
     pub fn new(base: &Utf8PathBuf, file: &Utf8PathBuf) -> Self {
         Model {
             name: get_model_name(base, file),
@@ -117,6 +116,9 @@ mod tests {
     fn test_get_model_name_sub_path() {
         let base = Utf8PathBuf::from("./models");
         let file = Utf8PathBuf::from("./models/presentation/demo.sql");
-        assert_eq!(get_model_name(&base, &file), String::from("presentation.demo"));
+        assert_eq!(
+            get_model_name(&base, &file),
+            String::from("presentation.demo")
+        );
     }
 }
