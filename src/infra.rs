@@ -21,17 +21,25 @@ impl Model {
 }
 
 pub fn get_model_name(base: &Utf8PathBuf, file: &Utf8PathBuf) -> String {
-    let file_without_base = if file.parent().unwrap() == base {
-        file
+    let canonical_base = base.canonicalize_utf8().unwrap();
+    let canonical_file = file.canonicalize_utf8().unwrap();
+
+    if file.parent() == Some(base) {
+        String::from(file.file_stem().unwrap())
     } else {
-        file.strip_prefix(base).unwrap()
-    };
-    let parent = file_without_base.parent().unwrap().components().join(".");
-    let file_stem = file_without_base.file_stem().unwrap();
-    if parent.is_empty() {
-        String::from(file_stem)
-    } else {
-        format!("{parent}.{file_stem}")
+        let parent = canonical_file
+            .strip_prefix(canonical_base)
+            .unwrap()
+            .parent()
+            .unwrap()
+            .components()
+            .join(".");
+        let file_stem = file.file_stem().unwrap();
+        if parent.is_empty() {
+            String::from(file_stem)
+        } else {
+            format!("{parent}.{file_stem}")
+        }
     }
 }
 
@@ -107,15 +115,15 @@ mod tests {
 
     #[test]
     fn test_get_model_name_root_path() {
-        let base = Utf8PathBuf::from("./models");
-        let file = Utf8PathBuf::from("./models/demo.sql");
+        let base = Utf8PathBuf::from("./demo/models");
+        let file = Utf8PathBuf::from("./demo/models/demo.sql");
         assert_eq!(get_model_name(&base, &file), String::from("demo"));
     }
 
     #[test]
     fn test_get_model_name_sub_path() {
-        let base = Utf8PathBuf::from("./models");
-        let file = Utf8PathBuf::from("./models/presentation/demo.sql");
+        let base = Utf8PathBuf::from("./demo/models");
+        let file = Utf8PathBuf::from("./demo/models/presentation/demo.sql");
         assert_eq!(
             get_model_name(&base, &file),
             String::from("presentation.demo")
