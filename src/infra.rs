@@ -1,3 +1,4 @@
+use crate::settings::Settings;
 use anyhow::{anyhow, Context, Error, Result};
 use camino::Utf8PathBuf;
 use itertools::Itertools;
@@ -40,6 +41,20 @@ pub fn get_model_name(base: &Utf8PathBuf, file: &Utf8PathBuf) -> String {
         } else {
             format!("{parent}.{file_stem}")
         }
+    }
+}
+
+pub fn find_models(settings: &Settings, name: &Option<String>) -> Result<Vec<Model>> {
+    match name {
+        Some(name) => {
+            let all_models = list_models(&settings.models.location)?;
+            let filtered_models = all_models
+                .into_iter()
+                .filter(|m| m.name.as_str() == name.as_str())
+                .collect();
+            Ok(filtered_models)
+        }
+        None => list_models(&settings.models.location),
     }
 }
 
