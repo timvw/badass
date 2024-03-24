@@ -24,7 +24,8 @@ pub fn do_show(settings: &Settings, show_args: &ShowArgs) -> anyhow::Result<()> 
     let compiled_model_file = compile_model(&model, settings)?;
     let compiled_model_sql = fs::read_to_string(compiled_model_file)?;
 
-    let mut client = Client::connect(&settings.query_engine.params, NoTls)?;
+    log::debug!("Connecting to {:#?}", &settings.queryengine.params);
+    let mut client = Client::connect(&settings.queryengine.params, NoTls)?;
 
     let result_rows = client.query(&compiled_model_sql, &[])?;
     let rows: Vec<Vec<String>> = result_rows.iter().map(get_display_values).collect();

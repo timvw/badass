@@ -41,7 +41,7 @@ pub struct QueryEngine {
 impl Default for QueryEngine {
     fn default() -> Self {
         QueryEngine {
-            params: String::from("host=localhost user=tim"),
+            params: String::from("host=localhost"),
         }
     }
 }
@@ -51,7 +51,7 @@ impl Default for QueryEngine {
 pub struct Settings {
     pub models: Models,
     pub output: Output,
-    pub query_engine: QueryEngine,
+    pub queryengine: QueryEngine,
 }
 
 impl Settings {
