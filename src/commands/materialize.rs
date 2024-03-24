@@ -1,17 +1,20 @@
-use crate::commands::compile::compile_files;
-use crate::infra::flatten_errors;
+use crate::args::MaterializeArgs;
+use crate::commands::compile::compile_model;
+use crate::infra::{find_models, flatten_errors, Model};
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use std::fs;
 
-pub fn do_materialize(settings: &Settings) -> Result<()> {
-    let source_dir = &settings.models.location;
-    let target_dir = &settings.output.compiled;
-    let compilation_results = compile_files(source_dir, target_dir)?;
+pub fn do_materialize(settings: &Settings, materialize_args: &MaterializeArgs) -> Result<()> {
+    let models = find_models(settings, &materialize_args.model)?;
+    let compiled_models: Vec<(Result<Utf8PathBuf>, Model)> = models
+        .into_iter()
+        .map(|x| (compile_model(&x, settings), x))
+        .collect();
 
-    // only consider the files we've been able to compile... (perhaps we should bail out?)
-    let compiled_files = compilation_results
+    // only consider the models we've been able to compile... (perhaps we should bail out?)
+    let compiled_files = compiled_models
         .into_iter()
         .filter_map(|(target_result, source)| match target_result {
             Ok(target) => Some((source, target)),

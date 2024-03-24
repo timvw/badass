@@ -19,7 +19,9 @@ fn try_main() -> Result<()> {
 
     match args.command {
         Command::Compile => commands::compile::do_compile(&settings),
-        Command::Materialize => commands::materialize::do_materialize(&settings),
+        Command::Materialize(materialize_args) => {
+            commands::materialize::do_materialize(&settings, &materialize_args)
+        }
         Command::Show(show_args) => commands::show::do_show(&settings, &show_args),
         Command::Settings => commands::settings::do_show(),
     }

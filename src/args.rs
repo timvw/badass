@@ -26,12 +26,17 @@ pub struct ShowArgs {
     pub model: String,
 }
 
+#[derive(Debug, Args)]
+pub struct MaterializeArgs {
+    pub model: Option<String>,
+}
+
 #[derive(Debug, Subcommand)]
 pub enum Command {
     /// Render the sql templates
     Compile,
     /// Materialize the templates
-    Materialize,
+    Materialize(MaterializeArgs),
     /// Show
     Show(ShowArgs),
     /// Settings
