@@ -2,8 +2,9 @@ use crate::args::MaterializeArgs;
 use crate::commands::compile::compile_model;
 use crate::infra::{find_models, flatten_errors, Model};
 use crate::settings::Settings;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use camino::Utf8PathBuf;
+use postgres::{Client, NoTls};
 use std::fs;
 
 pub fn do_materialize(settings: &Settings, materialize_args: &MaterializeArgs) -> Result<()> {
@@ -22,19 +23,15 @@ pub fn do_materialize(settings: &Settings, materialize_args: &MaterializeArgs) -
         })
         .collect::<Vec<_>>();
 
-    let materialized_dir = &settings.output.materialized;
-
-    fs::create_dir_all(materialized_dir)
-        .with_context(|| format!("Failed to ensure directory {} exists", materialized_dir))?;
+    log::debug!("Connecting to {:#?}", &settings.queryengine.params);
+    let mut client = Client::connect(&settings.queryengine.params, NoTls)?;
 
     let materialized_files = compiled_files
         .into_iter()
-        .map(|(_, compiled)| {
-            log::trace!("Materializing {compiled:?} in {materialized_dir:?}");
-            let file_name = &compiled.file_name().unwrap();
-            let materialized_file = materialized_dir.join(file_name);
-            let table_name = &compiled.file_stem().unwrap();
-            materialize_table(table_name, compiled.clone(), materialized_file)
+        .map(|(model, compiled)| {
+            log::trace!("Materializing {compiled:?}");
+            let table_name = &model.name;
+            materialize_table(table_name, &compiled, &mut client)
         })
         .collect::<Vec<_>>();
     flatten_errors(materialized_files).map(|_| ())
@@ -42,12 +39,12 @@ pub fn do_materialize(settings: &Settings, materialize_args: &MaterializeArgs) -
 
 fn materialize_table(
     table_name: &str,
-    compiled_sql_file: Utf8PathBuf,
-    materialized_sql_file: Utf8PathBuf,
-) -> Result<(Utf8PathBuf, Utf8PathBuf)> {
-    let compiled_sql = fs::read_to_string(&compiled_sql_file)?;
+    compiled_sql_file: &Utf8PathBuf,
+    client: &mut Client,
+) -> Result<()> {
+    let compiled_sql = fs::read_to_string(compiled_sql_file)?;
     let materialized_sql = format!("CREATE TABLE {} AS {}", table_name, compiled_sql);
-    fs::write(&materialized_sql_file, materialized_sql)?;
-    log::debug!("Materialized table {table_name} into {materialized_sql_file:?}");
-    Ok((compiled_sql_file, materialized_sql_file))
+    log::debug!("Run SQL: {materialized_sql:?}");
+    client.execute(&materialized_sql, &[])?;
+    Ok(())
 }
