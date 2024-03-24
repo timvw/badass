@@ -22,6 +22,11 @@ impl BadassArgs {
 pub struct GlobalOpts {}
 
 #[derive(Debug, Args)]
+pub struct CompileArgs {
+    pub model: Option<String>,
+}
+
+#[derive(Debug, Args)]
 pub struct ShowArgs {
     pub model: String,
 }
@@ -34,7 +39,7 @@ pub struct MaterializeArgs {
 #[derive(Debug, Subcommand)]
 pub enum Command {
     /// Render the sql templates
-    Compile,
+    Compile(CompileArgs),
     /// Materialize the templates
     Materialize(MaterializeArgs),
     /// Show

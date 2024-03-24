@@ -1,37 +1,27 @@
-use crate::infra;
-use crate::infra::{flatten_errors, Model};
+use crate::args::CompileArgs;
+use crate::infra::{find_models, flatten_errors, Model};
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use minijinja::{context, Environment};
 use std::fs;
 
-pub fn do_compile(settings: &Settings) -> Result<()> {
-    let source_dir = &settings.models.location;
-    let target_dir = &settings.output.compiled;
-    let compilation_results = compile_files(source_dir, target_dir)?;
-    let results = compilation_results
+pub fn do_compile(settings: &Settings, compile_args: &CompileArgs) -> Result<()> {
+    let models = find_models(settings, &compile_args.model)?;
+    let compiled_models: Vec<(Result<Utf8PathBuf>, Model)> = models
+        .into_iter()
+        .map(|x| (compile_model(&x, settings), x))
+        .collect();
+
+    let results = compiled_models
         .into_iter()
         .map(|(target_result, _)| match target_result {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
         })
         .collect::<Vec<Result<_>>>();
-    flatten_errors(results).map(|_| ())
-}
 
-pub fn compile_files(
-    source_dir: &Utf8PathBuf,
-    target_dir: &Utf8PathBuf,
-) -> Result<Vec<(Result<Utf8PathBuf>, Utf8PathBuf)>> {
-    let template_files = infra::list_template_files(source_dir)?;
-    fs::create_dir_all(target_dir)
-        .with_context(|| format!("Failed to ensure directory {} exists", &target_dir))?;
-    let compilation_results = template_files
-        .into_iter()
-        .map(|source| (compile_file(&source, target_dir), source))
-        .collect::<Vec<_>>();
-    Ok(compilation_results)
+    flatten_errors(results).map(|_| ())
 }
 
 fn compile_file(source: &Utf8PathBuf, target_dir: &Utf8PathBuf) -> Result<Utf8PathBuf> {

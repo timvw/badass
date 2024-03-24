@@ -18,7 +18,7 @@ fn try_main() -> Result<()> {
     log::debug!("the args are: {args:?}");
 
     match args.command {
-        Command::Compile => commands::compile::do_compile(&settings),
+        Command::Compile(compile_args) => commands::compile::do_compile(&settings, &compile_args),
         Command::Materialize(materialize_args) => {
             commands::materialize::do_materialize(&settings, &materialize_args)
         }
