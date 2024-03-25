@@ -1,6 +1,6 @@
 use crate::args::ShowArgs;
 use crate::commands::compile::compile_model;
-use crate::infra::list_models;
+use crate::model::list_models;
 use crate::settings::Settings;
 use anyhow::Context;
 use chrono::{DateTime, Utc};

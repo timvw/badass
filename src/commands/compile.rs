@@ -1,5 +1,6 @@
 use crate::args::CompileArgs;
-use crate::infra::{find_models, flatten_errors, Model};
+use crate::infra::flatten_errors;
+use crate::model::{find_models, Model};
 use crate::settings::Settings;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;

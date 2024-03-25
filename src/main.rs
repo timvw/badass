@@ -2,6 +2,7 @@ mod args;
 mod commands;
 mod infra;
 mod logging;
+mod model;
 mod settings;
 
 use anyhow::{Context, Result};
