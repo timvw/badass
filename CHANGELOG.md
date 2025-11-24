@@ -6,6 +6,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3](https://github.com/timvw/badass/compare/v0.1.2...v0.1.3) - 2025-11-24
+
+### Added
+
+- materialize instead of generating sql
+- allow user to specify a specific model
+- configure pre-commits
+- extract model name from filename
+
+### Fixed
+
+- *(deps)* update rust crate minijinja to v2
+- *(deps)* update all non-major dependencies
+- rename struct field such that it's possible to override with an env variable
+- *(test)* handle special case
+
+### Other
+
+- Fix config key mapping for query_engine
+- Add settings to delete merged branches
+- refactor into mods
+- fxi test
+- update revision of hook
+- clippy
+- lint
+
 ## [0.1.2](https://github.com/timvw/badass/compare/v0.1.1...v0.1.2) - 2024-03-22
 
 ### Added
