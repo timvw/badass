@@ -51,6 +51,7 @@ impl Default for QueryEngine {
 pub struct Settings {
     pub models: Models,
     pub output: Output,
+    #[serde(rename = "query_engine")]
     pub queryengine: QueryEngine,
 }
 
